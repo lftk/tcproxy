@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
 	"sync"
 	"sync/atomic"
 )
@@ -16,6 +17,7 @@ var (
 
 func main() {
 	flag.Parse()
+	log.SetOutput(os.Stdout)
 
 	l, err := net.Listen("tcp", *addr)
 	if err != nil {
@@ -26,8 +28,7 @@ func main() {
 	for {
 		c, err := l.Accept()
 		if err != nil {
-			log.Println(err)
-			return
+			log.Fatal(err)
 		}
 
 		go func(c net.Conn) {
@@ -37,7 +38,6 @@ func main() {
 				c.Close()
 				return
 			}
-
 			wrapConn(c).Join(to)
 		}(c)
 	}
